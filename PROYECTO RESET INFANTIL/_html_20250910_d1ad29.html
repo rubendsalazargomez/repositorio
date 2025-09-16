@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESET INFANTIL - Prevención de Dependencia Tecnológica</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #4e7ae6;
+            --secondary: #ff9f40;
+            --accent: #6c5ce7;
+            --light: #f9f9f9;
+            --dark: #333;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+            --info: #3498db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            margin-right: 0.5rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background-color: white;
+            padding: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1.5rem;
+            margin: 0.3rem;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        h3 {
+            color: var(--accent);
+            margin: 1.5rem 0 1rem;
+        }
+
+        .card {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #fff, #f5f7fa);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--primary);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #777;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+        }
+
+        .upload-container {
+            text-align: center;
+            padding: 2rem;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            margin: 2rem 0;
+            transition: all 0.3s;
+        }
+
+        .upload-container:hover {
+            border-color: var(--primary);
+            background-color: #f0f7ff;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(78, 122, 230, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(78, 122, 230, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(to right, var(--secondary), #ff7f00);
+            box-shadow: 0 4px 10px rgba(255, 159, 64, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(78, 122, 230, 0.2);
+        }
+
+        .question-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .question-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #444;
+        }
+
+        .risk-indicator {
+            height: 10px;
+            background-color: #eee;
+            border-radius: 5px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .risk-level {
+            height: 100%;
+            border-radius: 5px;
+        }
+
+        .risk-low { background-color: var(--success); width: 30%; }
+        .risk-medium { background-color: var(--warning); width: 60%; }
+        .risk-high { background-color: var(--danger); width: 90%; }
+
+        .result-card {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            background: linear-gradient(135deg, #f5f7fa, #eef2f7);
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+
+        .badge-low { background-color: var(--success); color: white; }
+        .badge-medium { background-color: var(--warning); color: white; }
+        .badge-high { background-color: var(--danger); color: white; }
+        .badge-extreme { background-color: #8e44ad; color: white; }
+
+        .recommendations {
+            background-color: #e8f4fc;
+            border-left: 5px solid var(--info);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .recommendations h4 {
+            color: var(--info);
+            margin-bottom: 1rem;
+        }
+
+        .recommendations ul {
+            padding-left: 1.5rem;
+        }
+
+        .recommendations li {
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            background: linear-gradient(135deg, var(--dark), #222);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .developers {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .developer-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            width: 200px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .question-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <div class="logo">🧠</div>
+            <div>
+                <h1>RESET INFANTIL</h1>
+                <p class="subtitle">Prevención de Dependencia Tecnológica en la Niñez</p>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="nav-container">
+            <div class="nav-item active" data-target="home">Inicio</div>
+            <div class="nav-item" data-target="problem">Problema</div>
+            <div class="nav-item" data-target="data">Datos y Estadísticas</div>
+            <div class="nav-item" data-target="test">Test de Evaluación</div>
+            <div class="nav-item" data-target="about">Acerca del Proyecto</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- SECCIÓN INICIO -->
+        <section id="home" class="section active">
+            <h2>Bienvenido a RESET INFANTIL</h2>
+            <div class="card">
+                <p>Una herramienta diseñada para ayudar a padres y educadores a identificar tempranamente señales de riesgo de dependencia tecnológica en niños y recibir orientación profesional para prevenir problemas emocionales, cognitivos y sociales.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">9.4M</div>
+                    <div class="stat-label">Niños en riesgo en Colombia (DANE, 2024)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">1 de 5</div>
+                    <div class="stat-label">Niños con posible dependencia tecnológica</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">38.8%</div>
+                    <div class="stat-label">Uso significativo en muestra estudiada</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">9.2%</div>
+                    <div class="stat-label">Posible adicción en muestra estudiada</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 2rem 0;">
+                <button class="btn" onclick="showSection('test')">Realizar Test de Evaluación</button>
+            </div>
+
+            <h3>¿Cómo funciona?</h3>
+            <div class="card">
+                <ol>
+                    <li><strong>Evaluación:</strong> Responda el cuestionario sobre los hábitos tecnológicos de su hijo.</li>
+                    <li><strong>Análisis:</strong> Nuestro sistema analizará las respuestas utilizando inteligencia artificial.</li>
+                    <li><strong>Resultados:</strong> Obtendrá un perfil de riesgo con recomendaciones personalizadas.</li>
+                    <li><strong>Prevención:</strong> Acceda a recursos y orientación para prevenir problemas mayores.</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- SECCIÓN PROBLEMA -->
+        <section id="problem" class="section">
+            <h2>Problema Abordado</h2>
+            <div class="card">
+                <p>En la actualidad, el uso excesivo y desmedido de la tecnología en la niñez se ha convertido en un factor de riesgo para la salud psicológica, emocional y social de los menores. Según cifras del DANE (2024), cerca de 9,4 millones de niños menores de 12 años en Colombia, es decir, 1 de cada 5, se encuentran en riesgo de desarrollar problemas asociados a la dependencia tecnológica.</p>
+                
+                <p>Este fenómeno se manifiesta en comportamientos como aislamiento social, irritabilidad, pensamientos obsesivos y posibles adicciones sin diagnóstico oportuno, los cuales pueden escalar a trastornos más graves como depresión o ansiedad si no son detectados a tiempo.</p>
+                
+                <p>Actualmente, muchos padres no cuentan con herramientas claras para identificar estos riesgos en las primeras etapas ni con sistemas de acompañamiento accesibles que les permitan actuar de manera preventiva. Esta situación genera preocupación en las familias, mayores costos en salud mental a futuro y un impacto negativo en el desarrollo integral de los niños.</p>
+                
+                <p>Por ello, surge la necesidad de implementar soluciones innovadoras basadas en inteligencia artificial que permitan detectar tempranamente señales de riesgo en la dependencia psicológica electrónica infantil y ofrezcan a los padres orientación profesional para prevenir consecuencias más graves.</p>
+            </div>
+
+            <h3>¿Por qué surge la propuesta?</h3>
+            <div class="card">
+                <p>Surge como propuesta que permita identificar tempranamente señales de riesgo de dependencia psicológica, emocional, social, conductista y otras brindando a la institución "Uniminuto sede Itagui" donde se llevó a cabo la toma de datos.</p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DATOS Y ESTADÍSTICAS -->
+        <section id="data" class="section">
+            <h2>Datos y Estadísticas</h2>
+            
+            <div class="card">
+                <h3>Distribución de resultados en la muestra estudiada (250 estudiantes)</h3>
+                <div class="chart-container">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">250</div>
+                    <div class="stat-label">Estudiantes evaluados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">600</div>
+                    <div class="stat-label">Población total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">48.01</div>
+                    <div class="stat-label">Puntuación media</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">0.928</div>
+                    <div class="stat-label">Alfa de Cronbach (confiabilidad)</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Promedios por Ítems de Evaluación</h3>
+                <div class="chart-container">
+                    <canvas id="itemsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="upload-container">
+                <h3>Cargar Datos Adicionales</h3>
+                <p>Puede cargar un archivo Excel con datos adicionales para su análisis</p>
+                <input type="file" id="fileUpload" accept=".xlsx, .xls" style="display: none;">
+                <button class="btn" onclick="document.getElementById('fileUpload').click()">Seleccionar Archivo</button>
+                <p id="fileName" style="margin-top: 1rem; font-style: italic;"></p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN TEST -->
+        <section id="test" class="section">
+            <h2>Test de Evaluación de Dependencia Tecnológica</h2>
+            <div class="card">
+                <p>Este cuestionario está diseñado para evaluar los hábitos tecnológicos de su hijo. Por favor, responda cada pregunta con sinceridad, seleccionando la opción que mejor describa la frecuencia de cada comportamiento.</p>
+            </div>
+
+            <div id="testContainer">
+                <div class="question-grid">
+                    <div class="question-card">
+                        <div class="question-text">1. ¿Con qué frecuencia su hijo prefiere usar dispositivos electrónicos en lugar de jugar al aire libre?</div>
+                        <select id="q1">
+                            <option value="1">Nunca</option>
+                            <option value="2">Rara vez</option>
+                            <option value="3">A veces</option>
+                            <option value="4">Frecuentemente</option>
+                            <option value="5">Siempre</option>
+                        </select>
+                    </div>
+                    <div class="question-card">
+                        <div class="question-text">2. ¿Su hijo se muestra irritable o enfadado cuando no puede usar dispositivos electrónicos?</div>
+                        <select id="q2">
+                            <option value="1">Nunca</option>
+                            <option value="2">Rara vez</option>
+                            <option value="3">A veces</option>
+                            <option value="4">Frecuentemente</option>
+                            <option value="5">Siempre</option>
+                        </select>
+                    </div>
+                    <div class="question-card">
+                        <div class="question-text">3. ¿El uso de dispositivos interfiere con las horas de comida o sueño de su hijo?</div>
+                        <select id="q3">
+                            <option value="1">Nunca</option>
+                            <option value="2">Rara vez</option>
+                            <option value="3">A veces</option>
+                            <option value="4">Frecuentemente</option>
+                            <option value="5">Siempre</option>
+                        </select>
+                    </div>
+                    <div class="question-card">
+                        <div class="question-text">4. ¿Su hijo descuida sus deberes escolares por pasar tiempo con dispositivos electrónicos?</div>
+                        <select id="q4">
+                            <option value="1">Nunca</option>
+                            <option value="2">Rara vez</option>
+                            <option value="3">A veces</option>
+                            <option value="4">Frecuentemente</option>
+                            <option value="5">Siempre</option>
+                        </select>
+                    </div>
+                    <div class="question-card">
+                        <div class="question-text">5. ¿Su hijo prefiere socializar en línea en lugar de interactuar personalmente?</div>
+                        <select id="q5">
+                            <option value="1">Nunca</option>
+                            <option value="2">Rara vez</option>
+                            <option value="3">A veces</option>
+                            <option value="4">Frecuentemente</option>
+                            <option value="5">Siempre</option>
+                        </select>
+                    </div>
+                    <div class="question-card">
+                        <div class="question-text">6. ¿Su hijo miente sobre el tiempo que pasa usando dispositivos electrónicos?</div>
+                        <select id="q6">
+                            <option value="1">Nunca</option>
+                            <option value="2">Rara vez</option>
+                            <option value="3">A veces</option>
+                            <option value="4">Frecuentemente</option>
+                            <option value="5">Siempre</option>
+                        </select>
+                    </div>
+                    <div class="question-card">
+                        <div class="question-text">7. ¿Su hijo parece ansioso o deprimido cuando no tiene acceso a tecnología?</div>
+                        <select id="q7">
+                            <option value="1">Nunca</option>
+                            <option value="2">Rara vez</option>
+                            <option value="3">A veces</option>
+                            <option value="4">Frecuentemente</option>
+                            <option value="5">Siempre</option>
+                        </select>
+                    </div>
+                    <div class="question-card">
+                        <div class="question-text">8. ¿Su hijo abandona otras actividades que antes disfrutaba por usar dispositivos?</div>
+                        <select id="q8">
+                            <option value="1">Nunca</option>
+                            <option value="2">Rara vez</option>
+                            <option value="3">A veces</option>
+                            <option value="4">Frecuentemente</option>
+                            <option value="5">Siempre</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="btn" onclick="calculateRisk()">Evaluar Resultados</button>
+                </div>
+            </div>
+
+            <div id="resultsContainer" style="display: none;">
+                <div class="result-card">
+                    <h3>Resultados de la Evaluación</h3>
+                    <div class="risk-indicator">
+                        <div id="riskLevelBar" class="risk-level risk-low"></div>
+                    </div>
+                    <div id="riskBadge" class="risk-badge badge-low">Bajo Riesgo</div>
+                    <p id="riskDescription">Su hijo muestra un uso saludable de la tecnología.</p>
+                </div>
+
+                <div class="recommendations">
+                    <h4>Recomendaciones Personalizadas</h4>
+                    <ul id="recommendationsList">
+                        <li>Establezca límites de tiempo para el uso de dispositivos.</li>
+                        <li>Fomente actividades al aire libre y ejercicio físico.</li>
+                        <li>Promueva la socialización cara a cara con otros niños.</li>
+                    </ul>
+                </div>
+
+                <div style="text-align: center;">
+                    <button class="btn btn-secondary" onclick="resetTest()">Realizar otra evaluación</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN ACERCA DEL PROYECTO -->
+        <section id="about" class="section">
+            <h2>Acerca del Proyecto</h2>
+            
+            <div class="card">
+                <h3>Desarrolladores</h3>
+                <div class="developers">
+                    <div class="developer-card">
+                        <h4>Ruben Salazar Gomez</h4>
+                        <p>Desarrollador</p>
+                    </div>
+                    <div class="developer-card">
+                        <h4>Mayeli Montoya</h4>
+                        <p>Investigadora</p>
+                    </div>
+                    <div class="developer-card">
+                        <h4>Monica Arias</h4>
+                        <p>Especialista en Psicología</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Origen del Proyecto</h3>
+                <p>El proyecto surge como propuesta del proceso adelantado en inteligencia artificial perteneciente al programa Talento tech 2.0 durante el periodo Julio-Septiembre 2025.</p>
+                
+                <p>Nuestra investigación se basó en una muestra de 250 estudiantes de una población de 600, utilizando un instrumento validado con un Alfa de Cronbach de 0.928, lo que indica una alta confiabilidad en los resultados.</p>
+            </div>
+
+            <div class="card">
+                <h3>Metodología</h3>
+                <p>El modelo de predicción se desarrolló utilizando técnicas de machine learning, entrenado con los datos recopilados en la investigación. El algoritmo es capaz de identificar patrones de comportamiento asociados con la dependencia tecnológica y predecir el nivel de riesgo.</p>
+                
+                <p>Las categorías de riesgo se definieron de la siguiente manera:</p>
+                <ul>
+                    <li><strong>Bajo uso (mínima):</strong> Puntuación menor a 32</li>
+                    <li><strong>Uso moderado (riesgo):</strong> Puntuación entre 33 y 47</li>
+                    <li><strong>Uso alto (significativa):</strong> Puntuación entre 48 y 63</li>
+                    <li><strong>Uso extremo (posible adicción):</strong> Puntuación mayor a 64</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Agradecimientos</h3>
+                <p>Agradecemos a la institución Uniminuto sede Itagüí por facilitar la recolección de datos y a todos los participantes que contribuyeron a esta investigación.</p>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>RESET INFANTIL - Prevención de Dependencia Tecnológica en la Niñez</p>
+            <p>© 2025 - Desarrollado como parte del programa Talento Tech 2.0</p>
+        </div>
+    </footer>
+
+    <script>
+        // Datos del estudio (simulados a partir del Excel proporcionado)
+        const distributionData = {
+            labels: ['Bajo uso (mínima)', 'Uso moderado (riesgo)', 'Uso alto (significativa)', 'Uso extremo (posible adicción)'],
+            datasets: [{
+                data: [34, 96, 97, 23],
+                backgroundColor: ['#2ecc71', '#f1c40f', '#e74c3c', '#8e44ad'],
+                borderWidth: 0
+            }]
+        };
+
+        const itemsData = {
+            labels: ['I01', 'I02', 'I03', 'I04', 'I05', 'I06', 'I07', 'I08', 'I09', 'I10', 'I11', 'I12', 'I13', 'I14', 'I15', 'I16'],
+            datasets: [{
+                label: 'Puntuación promedio por ítem',
+                data: [3.04, 2.92, 3.08, 3.08, 3.09, 3.06, 2.98, 2.96, 3.00, 3.04, 2.92, 2.92, 3.02, 3.05, 2.92, 2.93],
+                backgroundColor: '#4e7ae6',
+                borderColor: '#3a5bb2',
+                borderWidth: 2
+            }]
+        };
+
+        // Inicializar gráficos cuando la página cargue
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gráfico de distribución
+            const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+            new Chart(distributionCtx, {
+                type: 'doughnut',
+                data: distributionData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const percentage = Math.round((value / 250) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de ítems
+            const itemsCtx = document.getElementById('itemsChart').getContext('2d');
+            new Chart(itemsCtx, {
+                type: 'bar',
+                data: itemsData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            title: {
+                                display: true,
+                                text: 'Puntuación promedio'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Ítems de evaluación'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Manejar la subida de archivos
+            document.getElementById('fileUpload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    document.getElementById('fileName').textContent = `Archivo seleccionado: ${file.name}`;
+                    // Aquí se procesaría el archivo Excel en un entorno real
+                    alert('Archivo cargado con éxito. En una implementación real, estos datos se procesarían para actualizar los gráficos.');
+                }
+            });
+        });
+
+        // Navegación entre secciones
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            document.querySelector(`[data-target="${sectionId}"]`).classList.add('active');
+            
+            window.scrollTo(0, 0);
+        }
+
+        // Asignar eventos a los elementos de navegación
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const target = this.getAttribute('data-target');
+                showSection(target);
+            });
+        });
+
+        // Calcular riesgo basado en las respuestas
+        function calculateRisk() {
+            let totalScore = 0;
+            
+            // Sumar las respuestas de todas las preguntas
+            for (let i = 1; i <= 8; i++) {
+                totalScore += parseInt(document.getElementById(`q${i}`).value);
+            }
+            
+            // Escalar a 80 puntos (como en el estudio original de 16 ítems)
+            totalScore = Math.round(totalScore * 2.5);
+            
+            // Determinar el nivel de riesgo
+            let riskLevel, riskDescription, badgeClass, barWidth;
+            
+            if (totalScore < 32) {
+                riskLevel = "Bajo uso (mínima)";
+                riskDescription = "Su hijo muestra un uso saludable de la tecnología. Sus hábitos digitales están dentro de parámetros normales y no representan riesgo significativo.";
+                badgeClass = "badge-low";
+                barWidth = "30%";
+            } else if (totalScore >= 32 && totalScore <= 47) {
+                riskLevel = "Uso moderado (riesgo)";
+                riskDescription = "Se detectan algunos patrones de uso que requieren atención. Es recomendable establecer límites claros y monitorear los hábitos tecnológicos.";
+                badgeClass = "badge-medium";
+                barWidth = "60%";
+            } else if (totalScore >= 48 && totalScore <= 63) {
+                riskLevel = "Uso alto (significativa)";
+                riskDescription = "Su hijo muestra señales de dependencia tecnológica significativa. Se recomienda implementar estrategias de reducción de uso y buscar actividades alternativas.";
+                badgeClass = "badge-high";
+                barWidth = "90%";
+            } else {
+                riskLevel = "Uso extremo (posible adicción)";
+                riskDescription = "Los resultados indican un posible caso de adicción tecnológica. Se recomienda consultar con un especialista en salud mental infantil.";
+                badgeClass = "badge-extreme";
+                barWidth = "100%";
+            }
+            
+            // Actualizar la interfaz con los resultados
+            document.getElementById('riskLevelBar').className = "risk-level";
+            document.getElementById('riskLevelBar').classList.add(riskLevel.toLowerCase().includes('bajo') ? 'risk-low' : 
+                                                                riskLevel.toLowerCase().includes('moderado') ? 'risk-medium' :
+                                                                riskLevel.toLowerCase().includes('alto') ? 'risk-high' : 'risk-high');
+            document.getElementById('riskLevelBar').style.width = barWidth;
+            
+            document.getElementById('riskBadge').className = "risk-badge " + badgeClass;
+            document.getElementById('riskBadge').textContent = riskLevel;
+            
+            document.getElementById('riskDescription').textContent = riskDescription;
+            
+            // Generar recomendaciones personalizadas
+            const recommendationsList = document.getElementById('recommendationsList');
+            recommendationsList.innerHTML = "";
+            
+            const recommendations = generateRecommendations(totalScore);
+            recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.textContent = rec;
+                recommendationsList.appendChild(li);
+            });
+            
+            // Mostrar resultados y ocultar test
+            document.getElementById('testContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            // Desplazarse a los resultados
+            document.getElementById('resultsContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Generar recomendaciones basadas en el puntaje
+        function generateRecommendations(score) {
+            const recommendations = [];
+            
+            // Recomendaciones base para todos los niveles
+            recommendations.push("Establezca límites claros de tiempo para el uso de dispositivos.");
+            recommendations.push("Fomente actividades al aire libre y ejercicio físico regular.");
+            recommendations.push("Promueva la socialización cara a cara con otros niños.");
+            
+            if (score >= 32 && score <= 47) {
+                recommendations.push("Cree 'zonas libres de tecnología' en casa, especialmente durante las comidas.");
+                recommendations.push("Establezca un horario consistente para el uso de dispositivos.");
+            } else if (score >= 48 && score <= 63) {
+                recommendations.push("Considere implementar aplicaciones de control parental para limitar el tiempo de uso.");
+                recommendations.push("Busque actividades alternativas que sean atractivas para su hijo.");
+                recommendations.push("Considere consultar con un orientador escolar o psicólogo infantil.");
+            } else if (score > 63) {
+                recommendations.push("Busque ayuda profesional especializada en adicciones tecnológicas.");
+                recommendations.push("Considere realizar una 'desintoxicación digital' supervisada.");
+                recommendations.push("Establezca metas graduales para reducir el tiempo de pantalla.");
+            }
+            
+            return recommendations;
+        }
+
+        // Reiniciar el test
+        function resetTest() {
+            for (let i = 1; i <= 8; i++) {
+                document.getElementById(`q${i}`).value = "1";
+            }
+            
+            document.getElementById('testContainer').style.display = 'block';
+            document.getElementById('resultsContainer').style.display = 'none';
+            
+            document.getElementById('testContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Simulación de código Python para el procesamiento de datos
+        // En un entorno real, esto se ejecutaría en el servidor
+        const pythonCodeSimulation = `
+# Código Python simulado para el procesamiento de datos
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+# Cargar dataset
+data = pd.read_excel('dataset_tecno_dependencia.xlsx')
+
+# Preprocesamiento
+X = data.drop('Riesgo', axis=1)
+y = data['Riesgo']
+
+# Dividir datos
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Entrenar modelo
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Evaluar modelo
+y_pred = model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Precisión del modelo: {accuracy:.2f}')
+
+# Función para predecir riesgo
+def predecir_riesgo(respuestas):
+    riesgo = model.predict([respuestas])
+    return riesgo[0]
+        `;
+    </script>
+</body>
+</html>
